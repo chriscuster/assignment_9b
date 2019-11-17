@@ -60,7 +60,7 @@ int main()
 
 
 
-			//open file for input using the bool function
+			//open file for input using the bool function.
 			cout << "Enter file name: ";
 			cin >> filename;
 
