@@ -144,16 +144,23 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 			{
 				score += "strike";
 				// account for next two rolls
-				if (roll + 2 <= ttlRolls && frameIdx == 10)
+				if (roll + 2 <= ttlRolls)
 				{
-					score += "\r\n-Roll 2: " + to_string(arr[roll + 1]);
-					score += "\r\n-Roll 3: " + to_string(arr[roll + 1]);
+					if (frameIdx == 10) 
+					{
+						score += "\r\n-Roll 2: " + to_string(arr[roll + 1]);
+						score += "\r\n-Roll 3: " + to_string(arr[roll + 2]);
+						isGameFinished = true;
+					}
 					frames[frameIdx] += arr[roll + 1] + arr[roll + 2];
-					isGameFinished = true;
+					
 				}
 				else if (roll + 1 == ttlRolls)
 				{
-					score += "\r\n-Roll 2: " + to_string(arr[roll + 1]);
+					if (frameIdx == 10)
+					{
+						score += "\r\n-Roll 2: " + to_string(arr[roll + 1]);
+					}
 					frames[frameIdx] += arr[roll + 1];
 				}
 
