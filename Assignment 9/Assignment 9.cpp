@@ -26,7 +26,6 @@ bool readPlayerRolls(int[], int&, string filename);
 
 int main()
 {
-	string a = "Hello, world!!!!!";
 	string score = "";
 	char menuOption = ' ';
 	//bowling menu
@@ -56,7 +55,7 @@ int main()
 
 			while (readPlayerRolls(userRolls, ttlRolls, filename) == false)
 			{
-				std::cout << "Could not open " << filename << ", reenter file name: " << endl;
+				cout << "Could not open " << filename << ", reenter file name: " << endl;
 				cin >> filename;
 			}
 			generateScoreText(userRolls, ttlRolls, score);
@@ -84,6 +83,7 @@ int main()
 
 }
 
+//TODO: ensure that frame 10 works with same logic as inputplayer
 bool readPlayerRolls(int userRolls[], int& ttlRolls, string filename)
 {
 	ifstream fin;
@@ -95,13 +95,14 @@ bool readPlayerRolls(int userRolls[], int& ttlRolls, string filename)
 	}
 
 
-	string scores = "";
-	while (!fin.eof())
+	string score = "";
+	fin >> score;
+	do
 	{
-		fin >> scores;
-		userRolls[ttlRolls] = stoi(scores);
+		userRolls[ttlRolls] = stoi(score);
 		ttlRolls++;
-	}
+		fin >> score;
+	} while (!fin.eof());
 	return true;
 	fin.close();
 }
@@ -243,6 +244,6 @@ void getPlayerRolls(int scores[], int& ttlRolls)
 			}
 		}
 		ttlRolls++;
-	} while (value > 0 && frameIdx < 11);
+	} while (value >= 0 && frameIdx < 11);
 
 }
