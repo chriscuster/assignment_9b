@@ -20,13 +20,7 @@ void generateScoreText(int[], int, string&);
 
 
 //function to read in user input for bowling data
-//void getPlayerRolls(int[], int&)
-//{
-//
-//}
-
-
-
+void getPlayerRolls(int[], int&);
 //function to store bowling data from file
 bool readPlayerRolls(int[], int&, string filename);
 
@@ -56,10 +50,6 @@ int main()
 		{
 		case 'R':
 		case 'r':
-
-
-
-
 			//open file for input using the bool function.
 			cout << "Enter file name: ";
 			cin >> filename;
@@ -71,21 +61,10 @@ int main()
 			}
 			generateScoreText(userRolls, ttlRolls, score);
 			cout << score;
-
-
-
 			break;
 		case 'i':
 		case 'I':
-			cout << "input roll values" << endl;
-			cin >> testData;
-			pos = 0;
-			while ((pos = testData.find(" ")) != string::npos)
-			{
-				userRolls[ttlRolls] = stoi(testData.substr(0, pos));
-				testData.erase(0, pos + 1);
-				ttlRolls++;
-			}
+			getPlayerRolls(userRolls, ttlRolls);
 			generateScoreText(userRolls, ttlRolls, score);
 			cout << score;
 
@@ -127,6 +106,8 @@ bool readPlayerRolls(int userRolls[], int& ttlRolls, string filename)
 	fin.close();
 }
 
+
+//TODO: check 10s through 9, then 5, 5, 5
 void generateScoreText(int arr[], int ttlRolls, string& score)
 {
 	bool isFirstRoll = true;
@@ -137,6 +118,7 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 	int frames[11] = { };
 	int frameIdx = 1;
 	bool isSpare = false;
+	bool isGameFinished = false;
 
 	for (int roll = 0; roll < ttlRolls; roll++)
 	{
@@ -209,4 +191,58 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 	score = to_string(ttlScore);
 }
 
+void getPlayerRolls(int scores[], int& ttlRolls)
+{
+	int roll = 1;
+	int strikeRollNumber = 0;
+	int ttlScore = 0;
+	int frameScore = 0;
+	// for 10 frames 1-10
+	int	frameIdx = 1;
+	bool isSpare = false;
+	bool isGameFinished = false;
+	bool isStrikeIn10 = false;
 
+	int value = 0;
+	do
+	{
+		cout << "Frame " << frameIdx << endl << "-roll " << roll << ": ";
+
+		cin >> value;
+		scores[ttlRolls] = value;
+		// if first roll, 
+		if (roll == 1 && frameIdx < 11)
+		{
+			if (value == 10 && frameIdx < 10) {
+				frameIdx++;
+			}
+			else if (value == 10 && frameIdx == 10)
+			{
+				isStrikeIn10 = true;
+				roll = 2;
+			}
+			else
+			{
+				roll = 2;
+			}
+		}
+		else // roll 2, or in 10th the third roll
+		{
+			// check for spare if second roll, gain 1 extra roll
+			// or if strike need to have two extra rolls
+			if (roll < 3 && ((frameIdx == 10 && roll == 2 && scores[ttlRolls] + scores[ttlRolls - 1] == 10)
+				|| isStrikeIn10))
+			{
+				roll = 3;
+			}
+
+			else
+			{
+				frameIdx++;
+				roll = 1;
+			}
+		}
+		ttlRolls++;
+	} while (value > 0 && frameIdx < 11);
+
+}
