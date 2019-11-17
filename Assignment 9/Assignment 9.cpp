@@ -2,8 +2,6 @@
 Christopher Custer
 Assignment 9
 Program Description: Utilize functions with arrays to create a bowling game calculator
-
-
 */
 
 #include <iostream>
@@ -119,15 +117,9 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 	bool isGameFinished = false;
 
 	score = "Frame #1 \r\n-Roll 1: ";
-
-	for (int roll = 0; roll < ttlRolls; roll++)
+	int roll = 0;
+	while (roll < ttlRolls && !isGameFinished)
 	{
-		if (frameIdx == 10 && arr[roll] == 10)
-		{
-			frames[frameIdx] += arr[roll] + arr[roll + 1] + arr[roll + 2];
-			break;
-		}
-
 		// if last roll
 		if (roll == ttlRolls)
 		{
@@ -146,14 +138,23 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 				// account for next two rolls
 				if (roll + 2 <= ttlRolls)
 				{
-					if (frameIdx == 10) 
+					if (frameIdx == 10)
 					{
-						score += "\r\n-Roll 2: " + to_string(arr[roll + 1]);
-						score += "\r\n-Roll 3: " + to_string(arr[roll + 2]);
+						string rollValue = "strike";
+						if (arr[roll + 1] < 10)
+							rollValue = to_string(arr[roll + 1]);
+
+						score += "\r\n-Roll 2: " + rollValue;
+					
+						rollValue = "strike";
+						if (arr[roll + 2] < 10)
+							rollValue = to_string(arr[roll + 1]);
+						score += "\r\n-Roll 3: " + rollValue;
+
 						isGameFinished = true;
 					}
 					frames[frameIdx] += arr[roll + 1] + arr[roll + 2];
-					
+
 				}
 				else if (roll + 1 == ttlRolls)
 				{
@@ -164,11 +165,12 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 					frames[frameIdx] += arr[roll + 1];
 				}
 
-				frameIdx++;
-				if (frameIdx <= 10)
+				if (frameIdx < 10)
 				{
+					frameIdx++;
 					score += "\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
 				}
+				
 			}
 			else
 			{
@@ -215,6 +217,7 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 				score += "\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
 			}
 		}
+		roll++;
 	}
 
 	//adding frame total
@@ -231,6 +234,26 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 	{
 		score += "\r\n\r\n-Game in Progress-";
 	}
+
+	ofstream fout;
+	string filename = "";
+	char answer = ' ';
+	do
+	{
+		cout << "Would you like to save game to a file? [y/n] ";
+		cin >> answer;
+
+		if (answer == 'y')
+		{
+			cout << "Enter filename to save bowling game: ";
+			cin >> filename;
+			cout << endl;
+			fout.open(filename.c_str());
+			fout << score;
+		}
+		fout.close();
+	} while (answer != 'y' && answer != 'n');
+
 }
 
 void getPlayerRolls(int scores[], int& ttlRolls)

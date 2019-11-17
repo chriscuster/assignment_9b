@@ -1,0 +1,24 @@
+Frame #1 
+-Roll 1: strike
+Frame #2
+-Roll 1: strike
+Frame #3
+-Roll 1: strike
+Frame #4
+-Roll 1: strike
+Frame #5
+-Roll 1: strike
+Frame #6
+-Roll 1: strike
+Frame #7
+-Roll 1: strike
+Frame #8
+-Roll 1: strike
+Frame #9
+-Roll 1: strike
+Frame #10
+-Roll 1: strike
+-Roll 2: 10
+-Roll 3: 10strikestrike
+
+Total Score: -1717986560
