@@ -78,9 +78,6 @@ int main()
 		}
 		break;
 	}
-
-
-
 }
 
 //TODO: ensure that frame 10 works with same logic as inputplayer
@@ -121,6 +118,8 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 	bool isSpare = false;
 	bool isGameFinished = false;
 
+	score = "Frame #1 \r\n-Roll 1: ";
+
 	for (int roll = 0; roll < ttlRolls; roll++)
 	{
 		if (frameIdx == 10 && arr[roll] == 10)
@@ -143,21 +142,38 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 			// if strike
 			if (arr[roll] == 10)
 			{
+				score += "strike";
 				// account for next two rolls
 				if (roll + 2 <= ttlRolls)
 				{
+					if (frameIdx == 10) 
+					{
+						score += "\r\n-Roll 2: " + to_string(arr[roll + 1]);
+						score += "\r\n-Roll 3: " + to_string(arr[roll + 2]);
+						isGameFinished = true;
+					}
 					frames[frameIdx] += arr[roll + 1] + arr[roll + 2];
+					
 				}
 				else if (roll + 1 == ttlRolls)
 				{
+					if (frameIdx == 10)
+					{
+						score += "\r\n-Roll 2: " + to_string(arr[roll + 1]);
+					}
 					frames[frameIdx] += arr[roll + 1];
 				}
 
 				frameIdx++;
+				if (frameIdx <= 10)
+				{
+					score += "\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
+				}
 			}
 			else
 			{
 				isFirstRoll = false;
+				score += to_string(arr[roll]);
 			}
 
 			// check for spare
@@ -169,17 +185,34 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 		}
 		else // not first roll
 		{
+			score += "\r\n-Roll 2: ";
 			// add prev with this
 			frames[frameIdx] += arr[roll];
 			// check for spare
 			if (frames[frameIdx] == 10)
 			{
+				score += "spare";
 				isSpare = true;
+				if (frameIdx == 10 && roll + 2 == ttlRolls)
+				{
+					score += "\r\n-Roll 3: " + to_string(arr[roll + 1]);
+					isGameFinished = true;
+				}
+			}
+			else
+			{
+				score += to_string(arr[roll]);
+				if (frameIdx == 10)
+				{
+					isGameFinished = true;
+				}
 			}
 			if (frameIdx < 10)
 			{
 				frameIdx++;
 				isFirstRoll = true;
+
+				score += "\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
 			}
 		}
 	}
@@ -189,7 +222,15 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 	{
 		ttlScore += frames[i];
 	}
-	score = to_string(ttlScore);
+
+	if (isGameFinished)
+	{
+		score += "\r\n\r\nTotal Score: " + to_string(ttlScore);
+	}
+	else
+	{
+		score += "\r\n\r\n-Game in Progress-";
+	}
 }
 
 void getPlayerRolls(int scores[], int& ttlRolls)
