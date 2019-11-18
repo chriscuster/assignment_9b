@@ -236,11 +236,6 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 		roll++;
 	}
 
-	//adding frame total
-	/*for (int i = 1; i <= frameIdx; i++)
-	{
-		ttlScore += frames[i];
-	}*/
 
 	if (isGameFinished)
 	{
