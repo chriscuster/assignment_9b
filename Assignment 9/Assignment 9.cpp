@@ -26,56 +26,59 @@ int main()
 {
 	string score = "";
 	char menuOption = ' ';
-	//bowling menu
-	cout << "[R]ead roll data from a file" << endl;
-	cout << "[I]nput roll data manually" << endl;
-	cout << "[Q]uit Program" << endl;
-
 	int userRolls[21] = {};
 	int ttlRolls = 0;
 	string filename = "";
 	string testData = "";
 	fstream fin;
 	int pos = 0;
-	//loop to ensure user data is good
-	while (true)
-	{
-		cout << "Enter selection: ";
-		cin >> menuOption;
 
-		switch (menuOption)
+	
+		
+
+		//loop to ensure user data is good
+		do
 		{
-		case 'R':
-		case 'r':
-			//open file for input using the bool function.
-			cout << "Enter file name: ";
-			cin >> filename;
+			//bowling menu
+			cout << "[R]ead roll data from a file" << endl;
+			cout << "[I]nput roll data manually" << endl;
+			cout << "[Q]uit Program" << endl;
+			cout << "Enter selection: ";
+			cin >> menuOption;
 
-			while (readPlayerRolls(userRolls, ttlRolls, filename) == false)
+			switch (menuOption)
 			{
-				cout << "Could not open " << filename << ", reenter file name: " << endl;
+			case 'R':
+			case 'r':
+				//open file for input using the bool function.
+				cout << "Enter file name: ";
 				cin >> filename;
-			}
-			generateScoreText(userRolls, ttlRolls, score);
-			cout << score;
-			break;
-		case 'i':
-		case 'I':
-			getPlayerRolls(userRolls, ttlRolls);
-			generateScoreText(userRolls, ttlRolls, score);
-			cout << score;
 
+				while (readPlayerRolls(userRolls, ttlRolls, filename) == false)
+				{
+					cout << "Could not open " << filename << ", reenter file name: " << endl;
+					cin >> filename;
+				}
+				generateScoreText(userRolls, ttlRolls, score);
+				cout << score;
+				continue;
+			case 'i':
+			case 'I':
+				getPlayerRolls(userRolls, ttlRolls);
+				generateScoreText(userRolls, ttlRolls, score);
+				cout << score;
+
+				continue;
+			case 'q':
+			case 'Q':
+				cout << "quitting..." << endl;
+				break;
+			default:
+				cout << "Incorrect input please select option from bracketed characters []." << endl;
+				continue;
+			}
 			break;
-		case 'q':
-		case 'Q':
-			cout << "quitting..." << endl;
-			break;
-		default:
-			cout << "Incorrect input please select option from bracketed characters []." << endl;
-			continue;
-		}
-		break;
-	}
+		} while (true);
 }
 
 //TODO: ensure that frame 10 works with same logic as inputplayer
@@ -110,11 +113,13 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 	int strikeRollNumber = 0;
 	int ttlScore = 0;
 	int frameScore = 0;
+	int currentTtlScore = 0;
 	// for 10 frames 1-10
 	int frames[11] = { };
 	int frameIdx = 1;
 	bool isSpare = false;
 	bool isGameFinished = false;
+	bool isStrike = false;
 
 	score = "Frame #1 \r\n-Roll 1: ";
 	int roll = 0;
@@ -134,6 +139,7 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 			// if strike
 			if (arr[roll] == 10)
 			{
+				isStrike = true;
 				score += "strike";
 				// account for next two rolls
 				if (roll + 2 <= ttlRolls)
@@ -145,7 +151,7 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 							rollValue = to_string(arr[roll + 1]);
 
 						score += "\r\n-Roll 2: " + rollValue;
-					
+
 						rollValue = "strike";
 						if (arr[roll + 2] < 10)
 							rollValue = to_string(arr[roll + 1]);
@@ -165,24 +171,24 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 					frames[frameIdx] += arr[roll + 1];
 				}
 
+
+				ttlScore += frames[frameIdx];
 				if (frameIdx < 10)
 				{
+					score += "\r\n-Score: " + to_string(ttlScore);
 					frameIdx++;
-					score += "\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
+					score += "\r\n\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
 				}
-				
+				else
+				{
+					score += "\r\n-Score: " + to_string(ttlScore);
+				}
+
 			}
 			else
 			{
 				isFirstRoll = false;
 				score += to_string(arr[roll]);
-			}
-
-			// check for spare
-			if (isSpare)
-			{
-				frames[frameIdx - 1] += arr[roll];
-				isSpare = false;
 			}
 		}
 		else // not first roll
@@ -194,6 +200,8 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 			if (frames[frameIdx] == 10)
 			{
 				score += "spare";
+				if (roll + 1 < ttlRolls)
+					frames[frameIdx] += arr[roll + 1];
 				isSpare = true;
 				if (frameIdx == 10 && roll + 2 == ttlRolls)
 				{
@@ -209,22 +217,30 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 					isGameFinished = true;
 				}
 			}
+
+			ttlScore += frames[frameIdx];
 			if (frameIdx < 10)
 			{
+				score += "\r\n-Score: " + to_string(ttlScore);
 				frameIdx++;
 				isFirstRoll = true;
 
-				score += "\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
+				score += "\r\n\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
 			}
+			else
+			{
+				score += "\r\n-Score: " + to_string(ttlScore);
+			}
+
 		}
 		roll++;
 	}
 
 	//adding frame total
-	for (int i = 1; i <= frameIdx; i++)
+	/*for (int i = 1; i <= frameIdx; i++)
 	{
 		ttlScore += frames[i];
-	}
+	}*/
 
 	if (isGameFinished)
 	{
@@ -232,7 +248,7 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 	}
 	else
 	{
-		score += "\r\n\r\n-Game in Progress-";
+		score += "\r\n\r\n-Game in Progress-\r\n\r\n";
 	}
 
 	ofstream fout;
