@@ -26,62 +26,61 @@ int main()
 {
 	string score = "";
 	char menuOption = ' ';
-	int userRolls[21] = {};
-	int ttlRolls = 0;
+
 	string filename = "";
 	string testData = "";
 	fstream fin;
-	int pos = 0;
 
-	
-		
 
-		//loop to ensure user data is good
-		do
+	//loop to ensure user data is good
+	do
+	{
+		int userRolls[21] = {};
+		//bowling menu
+		cout << "[R]ead roll data from a file" << endl;
+		cout << "[I]nput roll data manually" << endl;
+		cout << "[Q]uit Program" << endl;
+		cout << "Enter selection: ";
+		cin >> menuOption;
+
+		int ttlRolls = 0;
+
+		switch (menuOption)
 		{
-			//bowling menu
-			cout << "[R]ead roll data from a file" << endl;
-			cout << "[I]nput roll data manually" << endl;
-			cout << "[Q]uit Program" << endl;
-			cout << "Enter selection: ";
-			cin >> menuOption;
+		case 'R':
+		case 'r':
+			//open file for input using the bool function.
+			cout << "Enter file name: ";
+			cin >> filename;
 
-			switch (menuOption)
+			while (readPlayerRolls(userRolls, ttlRolls, filename) == false)
 			{
-			case 'R':
-			case 'r':
-				//open file for input using the bool function.
-				cout << "Enter file name: ";
+				cout << "Could not open " << filename << ", reenter file name: " << endl;
 				cin >> filename;
-
-				while (readPlayerRolls(userRolls, ttlRolls, filename) == false)
-				{
-					cout << "Could not open " << filename << ", reenter file name: " << endl;
-					cin >> filename;
-				}
-				generateScoreText(userRolls, ttlRolls, score);
-				cout << score;
-				continue;
-			case 'i':
-			case 'I':
-				getPlayerRolls(userRolls, ttlRolls);
-				generateScoreText(userRolls, ttlRolls, score);
-				cout << score;
-
-				continue;
-			case 'q':
-			case 'Q':
-				cout << "quitting..." << endl;
-				break;
-			default:
-				cout << "Incorrect input please select option from bracketed characters []." << endl;
-				continue;
 			}
+			generateScoreText(userRolls, ttlRolls, score);
+			cout << score;
+			continue;
+		case 'i':
+		case 'I':
+			getPlayerRolls(userRolls, ttlRolls);
+
+			generateScoreText(userRolls, ttlRolls, score);
+			cout << score;
+
+			continue;
+		case 'q':
+		case 'Q':
+			cout << "quitting..." << endl;
 			break;
-		} while (true);
+		default:
+			cout << "Incorrect input please select option from bracketed characters []." << endl;
+			continue;
+		}
+		break;
+	} while (true);
 }
 
-//TODO: ensure that frame 10 works with same logic as inputplayer
 bool readPlayerRolls(int userRolls[], int& ttlRolls, string filename)
 {
 	ifstream fin;
@@ -101,45 +100,40 @@ bool readPlayerRolls(int userRolls[], int& ttlRolls, string filename)
 		ttlRolls++;
 		fin >> score;
 	} while (!fin.eof());
-	return true;
 	fin.close();
+	return true;
 }
 
 
-//TODO: check 10s through 9, then 5, 5, 5
 void generateScoreText(int arr[], int ttlRolls, string& score)
 {
+	// make ttlRolls 0 based to match array
+	ttlRolls--;
+	int roll = 0;
 	bool isFirstRoll = true;
-	int strikeRollNumber = 0;
 	int ttlScore = 0;
-	int frameScore = 0;
-	int currentTtlScore = 0;
 	// for 10 frames 1-10
 	int frames[11] = { };
 	int frameIdx = 1;
-	bool isSpare = false;
 	bool isGameFinished = false;
-	bool isStrike = false;
 
 	score = "Frame #1 \r\n-Roll 1: ";
-	int roll = 0;
-	while (roll < ttlRolls && !isGameFinished)
+
+	while (roll <= ttlRolls && !isGameFinished)
 	{
 		// if last roll
-		if (roll == ttlRolls)
-		{
-			frames[frameIdx] += arr[roll];
-		}
+		//if (roll == ttlRolls)
+		//{
+		//	frames[frameIdx] += arr[roll];
+		//}
 		// if first roll
-		else if (isFirstRoll)
+		if (isFirstRoll)
 		{
-
 			frames[frameIdx] += arr[roll];
 
 			// if strike
 			if (arr[roll] == 10)
 			{
-				isStrike = true;
 				score += "strike";
 				// account for next two rolls
 				if (roll + 2 <= ttlRolls)
@@ -154,7 +148,7 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 
 						rollValue = "strike";
 						if (arr[roll + 2] < 10)
-							rollValue = to_string(arr[roll + 1]);
+							rollValue = to_string(arr[roll + 2]);
 						score += "\r\n-Roll 3: " + rollValue;
 
 						isGameFinished = true;
@@ -162,13 +156,16 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 					frames[frameIdx] += arr[roll + 1] + arr[roll + 2];
 
 				}
-				else if (roll + 1 == ttlRolls)
+				// if only one roll left (non complete game)
+				else if (roll + 1 <= ttlRolls)
 				{
+					frames[frameIdx] += arr[roll + 1];
 					if (frameIdx == 10)
 					{
 						score += "\r\n-Roll 2: " + to_string(arr[roll + 1]);
+						roll++;
 					}
-					frames[frameIdx] += arr[roll + 1];
+
 				}
 
 
@@ -177,7 +174,10 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 				{
 					score += "\r\n-Score: " + to_string(ttlScore);
 					frameIdx++;
-					score += "\r\n\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
+					if (roll < ttlRolls)
+					{
+						score += "\r\n\r\nFrame #" + to_string(frameIdx) + "\r\n-Roll 1: ";
+					}
 				}
 				else
 				{
@@ -200,12 +200,13 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 			if (frames[frameIdx] == 10)
 			{
 				score += "spare";
-				if (roll + 1 < ttlRolls)
+				if (roll + 1 <= ttlRolls)
 					frames[frameIdx] += arr[roll + 1];
-				isSpare = true;
-				if (frameIdx == 10 && roll + 2 == ttlRolls)
+
+				if (frameIdx == 10 && roll + 1 == ttlRolls)
 				{
-					score += "\r\n-Roll 3: " + to_string(arr[roll + 1]);
+					string roll3val = arr[roll + 1] == 10 ? "strike" : to_string(arr[roll + 1]);
+					score += "\r\n-Roll 3: " + roll3val;
 					isGameFinished = true;
 				}
 			}
@@ -239,7 +240,7 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 
 	if (isGameFinished)
 	{
-		score += "\r\n\r\nTotal Score: " + to_string(ttlScore);
+		score += "\r\n\r\nTotal Score: " + to_string(ttlScore) + "\r\n\r\n";
 	}
 	else
 	{
@@ -267,32 +268,103 @@ void generateScoreText(int arr[], int ttlRolls, string& score)
 
 }
 
-void getPlayerRolls(int scores[], int& ttlRolls)
+void getPlayerRolls(int userRolls[], int& ttlRolls)
 {
+
 	int roll = 1;
-	int strikeRollNumber = 0;
-	int ttlScore = 0;
-	int frameScore = 0;
 	// for 10 frames 1-10
 	int	frameIdx = 1;
-	bool isSpare = false;
-	bool isGameFinished = false;
 	bool isStrikeIn10 = false;
-
-	int value = 0;
+	int value1 = 0;
+	int value2 = 0;
+	int currentValue = 0;
+	int value3 = 0;
+	int checkTtlVal = 10;
 	do
 	{
-		cout << "Frame " << frameIdx << endl << "-roll " << roll << ": ";
+		//error checking for good player data
+		do
+		{
+			if (roll == 1)
+			{
+				value1 = 0;
+				value2 = 0;
+				value3 = 0;
+				currentValue = 0;
+				cout << "Frame " << frameIdx << endl << "-roll " << roll << ": ";
+				cin >> value1;
+				if (value1 > 10 || value1 < -1)
+				{
+					cout << "Error Inalid input." << endl;
+				}
+				if (value1 == -1)
+				{
+					break;
+				}
+				currentValue = value1;
+			}
+			else if (roll == 2)
+			{
+				value2 = 0;
+				value3 = 0;
+				if (frameIdx <= 10)
+				{
+					cout << "-roll " << roll << ": ";
+					cin >> value2;
+				}
 
-		cin >> value;
-		scores[ttlRolls] = value;
+				checkTtlVal = isStrikeIn10 ? 20 : 10;
+				if (value2 == -1)
+				{
+					break;
+				}
+				else if (value2 + value1 > checkTtlVal || value2 < -1)
+				{
+					cout << "Error Inalid input." << endl;
+
+				}
+				else
+				{
+					currentValue = value2;
+				}
+			}
+			else
+			{
+				value3 = 0;
+				cout << "-roll " << roll << ": ";
+				cin >> value3;
+
+				checkTtlVal = isStrikeIn10 && value2 == 10 ? 30 : 20;
+
+				if (value3 == -1)
+				{
+					break;
+				}
+
+				if (value3 > 10 || value3 < -1
+					|| (value1 == 10 && value2 < 10 && value3 + value2>10))
+				{
+					cout << "Error Inalid input." << endl;
+				}
+
+				currentValue = value3;
+			}
+
+		} while (value1 + value2 + value3 > checkTtlVal || currentValue < -1 || currentValue>10);
+
+		if (value1 == -1 || value2 == -1 || value3 == -1)
+		{
+			break;
+		}
+
+		userRolls[ttlRolls] = currentValue;
 		// if first roll, 
 		if (roll == 1 && frameIdx < 11)
 		{
-			if (value == 10 && frameIdx < 10) {
+			if (currentValue == 10 && frameIdx < 10) {
 				frameIdx++;
 			}
-			else if (value == 10 && frameIdx == 10)
+			else if (currentValue == 10 && frameIdx == 10)
 			{
 				isStrikeIn10 = true;
 				roll = 2;
@@ -306,7 +378,7 @@ void getPlayerRolls(int scores[], int& ttlRolls)
 		{
 			// check for spare if second roll, gain 1 extra roll
 			// or if strike need to have two extra rolls
-			if (roll < 3 && ((frameIdx == 10 && roll == 2 && scores[ttlRolls] + scores[ttlRolls - 1] == 10)
+			if (roll < 3 && ((frameIdx == 10 && roll == 2 && userRolls[ttlRolls] + userRolls[ttlRolls - 1] == 10)
 				|| isStrikeIn10))
 			{
 				roll = 3;
@@ -319,6 +391,6 @@ void getPlayerRolls(int scores[], int& ttlRolls)
 			}
 		}
 		ttlRolls++;
-	} while (value >= 0 && frameIdx < 11);
+	} while (frameIdx < 11);
 
 }
